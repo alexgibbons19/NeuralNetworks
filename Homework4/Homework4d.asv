@@ -1,0 +1,38 @@
+clear;
+x1 = [0,1,2];
+x2 = [2,2,1];
+x3 = [1,3,3];
+
+D = [0,1,2];
+
+
+Input = [x1;x2;x3;D]';
+kMappedInputs = kMapping(Input);
+[N,m] = size(Input);
+k = max(max(Input))+1;
+tol = 1/(3*k);
+
+weights = zeros(m);
+allIters = zeros(3,1);
+actualOutputs = zeros(3,N);
+z=zeros(size(D));
+for i=1:3
+    tol = 1/((i+2)*k);
+    [weights, allIters(1,1)] = errorCorrectionRmse(kMappedInputs,tol,0);
+    w0=weights(1);
+    fixedWeights=weights(2:end);
+    for i=1:N
+        z(i) = sum(fixedWeights.*kMappedInputs(i,1:m-1));
+        z(i)= z(i)+w0;
+    end
+    actualOutputs(i,:)=unmapInputs(z);
+end
+
+disp(['Desired output: ' num2str(D)]);
+disp('Actual output: ');
+disp(actualOutputs);
+disp('Iterations: '); 
+disp(allIters);
+
+
+
